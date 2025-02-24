@@ -23,7 +23,7 @@ func newDefaultComponentConfig() (*xschedulerconfig.XschedulerConfiguration, err
 	versionedCfg := v1alpha1.XschedulerConfiguration{}
 	xschedulerscheme.Scheme.Default(&versionedCfg)
 	cfg := xschedulerconfig.XschedulerConfiguration{}
-	// todo: internal convert & default codegen
+	// 2. todo: internal convert & default codegen
 	if err := xschedulerscheme.Scheme.Convert(&versionedCfg, &cfg, nil); err != nil {
 		return nil, err
 	}
@@ -34,10 +34,12 @@ type Options struct {
 	ComponentConfig *xschedulerconfig.XschedulerConfiguration
 
 	// SecureServing is the main context that defines what certificates to use for serving.
-	SecureServing           *apiserveroptions.SecureServingOptionsWithLoopback
-	CombinedInsecureServing CombinedInsecureServingOptions
-	Metrics                 *metrics.Options
-	Logs                    *logs.Options
+	SecureServing  *apiserveroptions.SecureServingOptionsWithLoopback
+	Authentication *apiserveroptions.DelegatingAuthenticationOptions
+	Authorization  *apiserveroptions.DelegatingAuthorizationOptions
+	Metrics        *metrics.Options
+	Logs           *logs.Options
+	LeaderElection *componentbaseconfig.LeaderElectionConfiguration
 
 	// ConfigFile is the location of the scheduler server's configuration file.s
 	ConfigFile string
@@ -45,10 +47,8 @@ type Options struct {
 	WriteConfigTo string
 
 	// Flags stores the parsed CLI flags
-	Flags *cliflag.NamedFlagSets
-
-	LeaderElection *componentbaseconfig.LeaderElectionConfiguration
-	Client         clientset.Interface
+	Flags  *cliflag.NamedFlagSets
+	Client clientset.Interface
 }
 
 // todo: init usage options
@@ -60,33 +60,30 @@ func NewOptions() *Options {
 	o := &Options{
 		ComponentConfig: cfg,
 		SecureServing:   apiserveroptions.NewSecureServingOptions().WithLoopback(),
-		CombinedInsecureServing: CombinedInsecureServingOptions{
-			Healthz: &apiserveroptions.SecureServingOptions{
-				BindNetwork: "tcp",
-			},
-			Metrics: &apiserveroptions.SecureServingOptions{
-				BindNetwork: "tcp",
-			},
+		Authentication:  apiserveroptions.NewDelegatingAuthenticationOptions(),
+		Authorization:   apiserveroptions.NewDelegatingAuthorizationOptions(),
+		LeaderElection: &componentbaseconfig.LeaderElectionConfiguration{
+			LeaderElect:       true,
+			LeaseDuration:     metav1.Duration{Duration: 15 * time.Second},
+			RenewDeadline:     metav1.Duration{Duration: 10 * time.Second},
+			RetryPeriod:       metav1.Duration{Duration: 2 * time.Second},
+			ResourceLock:      "leases",
+			ResourceName:      "xscheduler",
+			ResourceNamespace: "xscheduler-system",
 		},
 		Metrics: metrics.NewOptions(),
 		Logs:    logs.NewOptions(),
-		LeaderElection: &componentbaseconfig.LeaderElectionConfiguration{
-			LeaderElect: true,
-			LeaseDuration: metav1.Duration{
-				Duration: 15 * time.Second,
-			},
-			RenewDeadline: metav1.Duration{
-				Duration: 10 * time.Second,
-			},
-			RetryPeriod: metav1.Duration{
-				Duration: 2 * time.Second,
-			},
-			ResourceLock:      "leases",
-			ResourceName:      "fleezesd-xscheduler",
-			ResourceNamespace: "xscheduler-system",
-		},
 	}
+
+	o.Authentication.TolerateInClusterLookupFailure = true
+	o.Authentication.RemoteKubeConfigFileOptional = true
+	o.Authorization.RemoteKubeConfigFileOptional = true
+
+	// Set the PairName but leave certificate directory blank to generate in-memory by default
+	o.SecureServing.ServerCert.CertDirectory = ""
+	o.SecureServing.ServerCert.PairName = "xscheduler"
 	o.SecureServing.BindPort = xschedulerconfig.DefaultXschedulerPort
+	o.initFlags()
 	return o
 }
 
@@ -102,11 +99,13 @@ func (o *Options) initFlags() {
 	fs.StringVar(&o.WriteConfigTo, "write-config-to", o.WriteConfigTo, "If set, write the configuration values to this file and exit.")
 
 	o.SecureServing.AddFlags(nfs.FlagSet("secure serving"))
-	o.CombinedInsecureServing.AddFlags(nfs.FlagSet("insecure serving"))
+	o.Authentication.AddFlags(nfs.FlagSet("authentication"))
+	o.Authorization.AddFlags(nfs.FlagSet("authorization"))
 	// leader election options
 	componentbaseoptions.BindLeaderElectionFlags(o.LeaderElection, nfs.FlagSet("leader election"))
 	// todo: feature gate flags
 	o.Metrics.AddFlags(nfs.FlagSet("metrics"))
 	logsapi.AddFlags(o.Logs, nfs.FlagSet("logs"))
+
 	o.Flags = &nfs
 }

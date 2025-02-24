@@ -32,16 +32,6 @@ func (in *XschedulerConfiguration) DeepCopyInto(out *XschedulerConfiguration) {
 	out.LeaderElection = in.LeaderElection
 	out.ClientConnection = in.ClientConnection
 	out.DebuggingConfiguration = in.DebuggingConfiguration
-	if in.HealthzBindAddress != nil {
-		in, out := &in.HealthzBindAddress, &out.HealthzBindAddress
-		*out = new(string)
-		**out = **in
-	}
-	if in.MetricsBindAddress != nil {
-		in, out := &in.MetricsBindAddress, &out.MetricsBindAddress
-		*out = new(string)
-		**out = **in
-	}
 	out.XschedulingInterval = in.XschedulingInterval
 	if in.Profiles != nil {
 		in, out := &in.Profiles, &out.Profiles

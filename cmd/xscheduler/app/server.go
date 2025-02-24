@@ -1,16 +1,31 @@
 package app
 
 import (
+	"context"
 	"fmt"
+	"os"
 
 	"github.com/fleezesd/xscheduler/cmd/xscheduler/app/options"
 	"github.com/spf13/cobra"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/apiserver/pkg/server"
+	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/component-base/cli/globalflag"
+	logsapi "k8s.io/component-base/logs/api/v1"
+	metricsfeatures "k8s.io/component-base/metrics/features"
 	"k8s.io/component-base/term"
 	"k8s.io/component-base/version/verflag"
 	"k8s.io/klog/v2"
 )
+
+func init() {
+	utilruntime.Must(logsapi.AddFeatureGates(utilfeature.DefaultMutableFeatureGate))
+	utilruntime.Must(metricsfeatures.AddFeatureGates(utilfeature.DefaultMutableFeatureGate))
+}
+
+// 1. todo: Option configures a framework registry
+type Option func() error
 
 func NewXschedulerCmd() *cobra.Command {
 	opts := options.NewOptions()
@@ -52,5 +67,25 @@ func NewXschedulerCmd() *cobra.Command {
 }
 
 func runCommand(cmd *cobra.Command, opts *options.Options) error {
+	if err := logsapi.ValidateAndApply(opts.Logs, utilfeature.DefaultFeatureGate); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+	cliflag.PrintFlags(cmd.Flags())
+
+	_, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go func() {
+		stopCh := server.SetupSignalHandler()
+		<-stopCh
+		cancel()
+	}()
+
+	return nil
+}
+
+// 2. todo make setup
+// Setup creates a completed config and a scheduler based on the command args and options
+func Setup(ctx context.Context, opts *options.Options, outOfTreeRegistryOptions ...Option) error {
 	return nil
 }

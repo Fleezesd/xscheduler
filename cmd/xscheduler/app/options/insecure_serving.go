@@ -7,9 +7,11 @@ import (
 	apiserveroptions "k8s.io/apiserver/pkg/server/options"
 )
 
+// 5. todo: check if or not delete it
+
 // CombinedInsecureServingOptions sets up to two insecure listeners for healthz and metrics. The flags
 // override the ComponentConfig and DeprecatedInsecureServingOptions values for both.
-type CombinedInsecureServingOptions struct {
+type CombinedSecureServingOptions struct {
 	Healthz *apiserveroptions.SecureServingOptions
 	Metrics *apiserveroptions.SecureServingOptions
 
@@ -18,7 +20,7 @@ type CombinedInsecureServingOptions struct {
 	BindAddress string
 }
 
-func (o *CombinedInsecureServingOptions) AddFlags(fs *pflag.FlagSet) {
+func (o *CombinedSecureServingOptions) AddFlags(fs *pflag.FlagSet) {
 	if lo.IsNil(o) {
 		return
 	}

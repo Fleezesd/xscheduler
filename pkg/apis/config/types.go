@@ -17,41 +17,41 @@ type XschedulerConfiguration struct {
 	metav1.TypeMeta
 
 	// LeaderElection defines the configuration of leader election client.
-	LeaderElection config.LeaderElectionConfiguration `json:"leaderElection,omitempty"`
+	LeaderElection config.LeaderElectionConfiguration
 
 	// ClientConnection specifies the kubeconfig file and client connection
 	// settings for the proxy server to use when communicating with the apiserver.
-	ClientConnection config.ClientConnectionConfiguration `json:"clientConnection,omitempty"`
+	ClientConnection config.ClientConnectionConfiguration
 
 	// DebuggingConfiguration holds configuration for Debugging related features.
-	config.DebuggingConfiguration `json:",inline"`
+	config.DebuggingConfiguration
 
 	// HealthzBindAddress is the IP address and port for the health check server to serve on.
-	HealthzBindAddress *string `json:"healthzBindAddress,omitempty"`
+	HealthzBindAddress string
 
 	// MetricsBindAddress is the IP address and port for the metrics server to serve on.
-	MetricsBindAddress *string `json:"metricsBindAddress,omitempty"`
+	MetricsBindAddress string
 
 	// Time interval for xscheduer to run
-	XschedulingInterval metav1.Duration `json:"xschedulingInterval,omitempty"`
+	XschedulingInterval metav1.Duration
 
 	// Dry run
-	DryRun bool `json:"dryRun,omitempty"`
+	DryRun bool
 
 	// Profiles
-	Profiles []XschedulerProfile `json:"profiles,omitempty"`
+	Profiles []XschedulerProfile
 
 	// NodeSelector for a set of nodes to operate over
-	NodeSelector *metav1.LabelSelector `json:"nodeSelector,omitempty"`
+	NodeSelector *metav1.LabelSelector
 
 	// MaxNoOfPodsToEvictPerNode restricts maximum of pods to be evicted per node.
-	MaxNoOfPodsToEvictPerNode *uint `json:"maxNoOfPodsToEvictPerNode,omitempty"`
+	MaxNoOfPodsToEvictPerNode *uint
 
 	// MaxNoOfPodsToEvictPerNamespace restricts maximum of pods to be evicted per namespace.
-	MaxNoOfPodsToEvictPerNamespace *uint `json:"maxNoOfPodsToEvictPerNamespace,omitempty"`
+	MaxNoOfPodsToEvictPerNamespace *uint
 
 	// MaxNoOfPodsToTotal restricts maximum of pods to be evicted total.
-	MaxNoOfPodsToEvictTotal *uint `json:"maxNoOfPodsToEvictTotal,omitempty"`
+	MaxNoOfPodsToEvictTotal *uint
 }
 
 // XschedulerProfile is a xscheduling profile.
