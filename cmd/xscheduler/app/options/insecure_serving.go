@@ -1,7 +1,7 @@
 package options
 
 import (
-	xschedulerconfig "github.com/fleezesd/xscheduler/pkg/apis/config"
+	xschedulerconfig "github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config"
 	"github.com/samber/lo"
 	"github.com/spf13/pflag"
 	apiserveroptions "k8s.io/apiserver/pkg/server/options"

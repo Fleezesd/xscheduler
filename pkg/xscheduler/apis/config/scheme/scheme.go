@@ -1,7 +1,7 @@
 package scheme
 
 import (
-	"github.com/fleezesd/xscheduler/pkg/apis/config"
+	"github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"

@@ -3,9 +3,9 @@ package options
 import (
 	"time"
 
-	xschedulerconfig "github.com/fleezesd/xscheduler/pkg/apis/config"
-	xschedulerscheme "github.com/fleezesd/xscheduler/pkg/apis/config/scheme"
-	"github.com/fleezesd/xscheduler/pkg/apis/config/v1alpha1"
+	xschedulerconfig "github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config"
+	xschedulerscheme "github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config/scheme"
+	"github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	apiserveroptions "k8s.io/apiserver/pkg/server/options"
@@ -108,4 +108,10 @@ func (o *Options) initFlags() {
 	logsapi.AddFlags(o.Logs, nfs.FlagSet("logs"))
 
 	o.Flags = &nfs
+}
+
+// Validate validates all the required options
+func (o *Options) Validate() []error {
+	// todo: make validate
+	return nil
 }

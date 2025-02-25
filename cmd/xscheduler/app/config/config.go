@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	xscheduerconfig "github.com/fleezesd/xscheduler/pkg/apis/config"
+	xscheduerconfig "github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config"
 	apiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/informers"

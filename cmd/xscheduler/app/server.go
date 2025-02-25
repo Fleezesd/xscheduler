@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/fleezesd/xscheduler/cmd/xscheduler/app/options"
+	frameworkruntime "github.com/fleezesd/xscheduler/pkg/xscheduler/framework/runtime"
 	"github.com/spf13/cobra"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apiserver/pkg/server"
@@ -24,8 +25,8 @@ func init() {
 	utilruntime.Must(metricsfeatures.AddFeatureGates(utilfeature.DefaultMutableFeatureGate))
 }
 
-// 1. todo: Option configures a framework registry
-type Option func() error
+// Option configures a framework registry
+type Option func(frameworkruntime.Registry) error
 
 func NewXschedulerCmd() *cobra.Command {
 	opts := options.NewOptions()
