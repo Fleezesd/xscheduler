@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	xschedulerserverconfig "github.com/fleezesd/xscheduler/cmd/xscheduler/app/config"
 	"github.com/fleezesd/xscheduler/cmd/xscheduler/app/options"
 	frameworkruntime "github.com/fleezesd/xscheduler/pkg/xscheduler/framework/runtime"
 	"github.com/spf13/cobra"
@@ -85,8 +86,12 @@ func runCommand(cmd *cobra.Command, opts *options.Options) error {
 	return nil
 }
 
-// 2. todo make setup
 // Setup creates a completed config and a scheduler based on the command args and options
-func Setup(ctx context.Context, opts *options.Options, outOfTreeRegistryOptions ...Option) error {
-	return nil
+func Setup(ctx context.Context, opts *options.Options, outOfTreeRegistryOptions ...Option) (
+	*xschedulerserverconfig.CompletedConfig, error) {
+	if errs := opts.Validate(); len(errs) > 0 {
+		return nil, nil
+	}
+
+	return nil, nil
 }

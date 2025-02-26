@@ -31,15 +31,6 @@ type Handle interface {
 	SharedInformerFactory() informers.SharedInformerFactory
 }
 
-type Plugin interface {
-	Name() string
-}
-
-type PluginsRunner interface {
-	RunXschedulerPlugin(ctx context.Context, node []*corev1.Node) *Status
-	RunBalancePlugins(ctx context.Context, node []*corev1.Node) *Status
-}
-
 type Evictor interface {
 	// Filter checks if a pod can be evicted
 	Filter(pod *corev1.Pod) bool
@@ -48,7 +39,7 @@ type Evictor interface {
 	PreEvictionFilter(pod *corev1.Pod) bool
 
 	// Evict evicts a pod (no pre-check performed)
-	Evict(ctx context.Context, pod *corev1.Pod, evictOption EvictOptions)
+	Evict(ctx context.Context, pod *corev1.Pod, evictOption EvictOptions) bool
 }
 
 type EvictOptions struct {

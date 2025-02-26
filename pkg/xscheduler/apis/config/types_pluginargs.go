@@ -6,6 +6,7 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// todo: add migration controller args
 // MigrationControllerArgs holds arguments used to configure the MigrationController
 type MigrationControllerArgs struct {
 	metav1.TypeMeta

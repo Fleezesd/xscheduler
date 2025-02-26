@@ -2,6 +2,7 @@ package validation
 
 import (
 	"net"
+	"reflect"
 	"strconv"
 
 	"github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config"
@@ -85,24 +86,38 @@ func validateXschedulerProfile(path *field.Path, profile *config.XschedulerProfi
 
 func validatePluginConfig(path *field.Path, profile *config.XschedulerProfile) []error {
 	var errs []error
-	// todo: make plugin validation
-	_ = map[string]interface{}{
+	m := map[string]interface{}{
 		names.MigrationController: ValidateMigrationControllerArgs,
 	}
 	seenPluginConfig := sets.New[string]()
 
 	for i := range profile.PluginConfig {
 		pluginConfigPath := path.Child("pluginConfig").Index(i)
-		// name represents the plugin name from configuration
 		name := profile.PluginConfig[i].Name
-		// args represents plugin arguments, currently unused
-		_ = profile.PluginConfig[i].Args
-		// Check for duplicate plugin configurations
+		args := profile.PluginConfig[i].Args
+
+		// check if or not duplicate in seenPluginConfig
 		if seenPluginConfig.Has(name) {
 			errs = append(errs, field.Duplicate(pluginConfigPath, name))
 		} else {
 			seenPluginConfig.Insert(name)
 		}
+
+		// if has validateFunc for plugin
+		if validateFunc, ok := m[name]; ok {
+			// check if or not args are true for validatefunc
+			// 1 is args and you can see ValidateMigrationControllerArgs this func
+			if reflect.TypeOf(args) != reflect.ValueOf(validateFunc).Type().In(1) {
+				errs = append(errs, field.Invalid(pluginConfigPath.Child("args"), args, "has to match plugin args"))
+			} else {
+				// use validatefunc
+				in := []reflect.Value{reflect.ValueOf(pluginConfigPath.Child("args")), reflect.ValueOf(args)}
+				res := reflect.ValueOf(validateFunc).Call(in)
+				if res[0].Interface() != nil {
+					errs = append(errs, res[0].Interface().(error))
+				}
+			}
+		}
 	}
-	return []error{}
+	return errs
 }
