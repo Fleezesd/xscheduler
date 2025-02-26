@@ -1,8 +1,15 @@
 package validation
 
 import (
+	"net"
+	"strconv"
+
 	"github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config"
+	"github.com/fleezesd/xscheduler/pkg/xscheduler/controllers/names"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	componentbasevalidation "k8s.io/component-base/config/validation"
 )
@@ -33,8 +40,38 @@ func ValidateXschedulerConfiguration(cc *config.XschedulerConfiguration) utilerr
 			existingProfiles[profile.Name] = i
 		}
 	}
-	// todo: another validation & know path usage
+	// validate healthz & metrics
+	for _, msg := range isValidSocketAddr(cc.HealthzBindAddress) {
+		errs = append(errs, field.Invalid(field.NewPath("healthzBindAddress"), cc.HealthzBindAddress, msg))
+	}
+	for _, msg := range isValidSocketAddr(cc.MetricsBindAddress) {
+		errs = append(errs, field.Invalid(field.NewPath("metricsBindAddress"), cc.MetricsBindAddress, msg))
+	}
+
+	// validate node selector
+	if cc.NodeSelector != nil {
+		_, err := metav1.LabelSelectorAsSelector(cc.NodeSelector)
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
 	return utilerrors.Flatten(utilerrors.NewAggregate(errs))
+}
+
+// IsValidSocketAddr checks that string represents a valid socket address
+// as defined in RFC 789. (e.g 0.0.0.0:10254 or [::]:10254))
+func isValidSocketAddr(value string) []string {
+	var errs []string
+	ip, port, err := net.SplitHostPort(value)
+	if err != nil {
+		errs = append(errs, "must be a valid socket address format, (e.g. 0.0.0.0:10254 or [::]:10254)")
+		return errs
+	}
+	portInt, _ := strconv.Atoi(port)
+	errs = append(errs, validation.IsValidPortNum(portInt)...)
+	errs = append(errs, validation.IsValidIP(field.NewPath("ip"), ip).
+		ToAggregate().Error())
+	return errs
 }
 
 func validateXschedulerProfile(path *field.Path, profile *config.XschedulerProfile) []error {
@@ -47,6 +84,25 @@ func validateXschedulerProfile(path *field.Path, profile *config.XschedulerProfi
 }
 
 func validatePluginConfig(path *field.Path, profile *config.XschedulerProfile) []error {
-	// todo validate plugin config
+	var errs []error
+	// todo: make plugin validation
+	_ = map[string]interface{}{
+		names.MigrationController: ValidateMigrationControllerArgs,
+	}
+	seenPluginConfig := sets.New[string]()
+
+	for i := range profile.PluginConfig {
+		pluginConfigPath := path.Child("pluginConfig").Index(i)
+		// name represents the plugin name from configuration
+		name := profile.PluginConfig[i].Name
+		// args represents plugin arguments, currently unused
+		_ = profile.PluginConfig[i].Args
+		// Check for duplicate plugin configurations
+		if seenPluginConfig.Has(name) {
+			errs = append(errs, field.Duplicate(pluginConfigPath, name))
+		} else {
+			seenPluginConfig.Insert(name)
+		}
+	}
 	return []error{}
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/component-base/config"
 )
 
@@ -54,8 +55,34 @@ type XschedulerConfiguration struct {
 	MaxNoOfPodsToEvictTotal *uint
 }
 
-// XschedulerProfile is a xscheduling profile.
+// XschedulerProfile defines a scheduling profile with plugins configuration
 type XschedulerProfile struct {
-	Name string `json:"name,omitempty"`
-	// todo: add plugin
+	Name         string
+	PluginConfig []PluginConfig
+	Plugins      *Plugins
+}
+
+// PluginConfig holds configuration for a plugin
+type PluginConfig struct {
+	Name string
+	Args runtime.Object
+}
+
+// Plugins holds the configuration of all plugin types
+type Plugins struct {
+	Xschedule PluginSet
+	Balance   PluginSet
+	Evict     PluginSet
+	Filter    PluginSet
+}
+
+// PluginSet specifies enabled and disabled plugins
+type PluginSet struct {
+	Enabled  []Plugin
+	Disabled []Plugin
+}
+
+// Plugin represents a single plugin by name
+type Plugin struct {
+	Name string
 }

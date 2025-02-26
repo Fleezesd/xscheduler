@@ -18,7 +18,7 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/component-base/config/v1alpha1"
+	componentbaseconfigv1alpha1 "k8s.io/component-base/config/v1alpha1"
 )
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -28,14 +28,14 @@ type XschedulerConfiguration struct {
 	metav1.TypeMeta
 
 	// LeaderElection defines the configuration of leader election client.
-	LeaderElection *v1alpha1.LeaderElectionConfiguration `json:"leaderElection,omitempty"`
+	LeaderElection *componentbaseconfigv1alpha1.LeaderElectionConfiguration `json:"leaderElection,omitempty"`
 
 	// ClientConnection specifies the kubeconfig file and client connection
 	// settings for the proxy server to use when communicating with the apiserver.
-	ClientConnection v1alpha1.ClientConnectionConfiguration `json:"clientConnection,omitempty"`
+	ClientConnection componentbaseconfigv1alpha1.ClientConnectionConfiguration `json:"clientConnection,omitempty"`
 
 	// DebuggingConfiguration holds configuration for Debugging related features.
-	v1alpha1.DebuggingConfiguration `json:",inline"`
+	componentbaseconfigv1alpha1.DebuggingConfiguration `json:",inline"`
 
 	// HealthzBindAddress is the IP address and port for the health check server to serve on.
 	HealthzBindAddress *string `json:"healthzBindAddress,omitempty"`
