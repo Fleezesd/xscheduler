@@ -93,5 +93,7 @@ func Setup(ctx context.Context, opts *options.Options, outOfTreeRegistryOptions 
 		return nil, nil
 	}
 
+	_, _ = opts.Config(ctx)
+
 	return nil, nil
 }

@@ -17,7 +17,7 @@ import (
 
 // Config has all the context to run a Scheduler
 type Config struct {
-	// 3.todo: Flagz is the Reader interface to get flags for flagz page.
+	// Flagz is the Reader interface to get flags for flagz page.
 	Flagz flagz.Reader
 
 	// ComponentConfig is the scheduler server's configuration object.
@@ -32,7 +32,7 @@ type Config struct {
 
 	Manager            ctrl.Manager
 	Client             clientset.Interface
-	kubeConfig         *restClient.Config
+	KubeConfig         *restClient.Config
 	InformerFactory    informers.SharedInformerFactory
 	DynInformerFactory dynamicinformer.DynamicSharedInformerFactory
 
@@ -43,7 +43,7 @@ type Config struct {
 	// PodMaxInUnschedulablePodsDuration is the maximum time a pod can stay in unschedulablePods.
 	PodMaxInUnschedulablePodsDuration time.Duration
 
-	// 4. todo: componentGlobalRegistry
+	// todo: componentGlobalRegistry
 }
 
 type completedConfig struct {
