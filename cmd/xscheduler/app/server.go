@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	xschedulerserverconfig "github.com/fleezesd/xscheduler/cmd/xscheduler/app/config"
+	xschedulerappconfig "github.com/fleezesd/xscheduler/cmd/xscheduler/app/config"
 	"github.com/fleezesd/xscheduler/cmd/xscheduler/app/options"
+	"github.com/fleezesd/xscheduler/pkg/xscheduler"
 	frameworkruntime "github.com/fleezesd/xscheduler/pkg/xscheduler/framework/runtime"
 	"github.com/spf13/cobra"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apiserver/pkg/server"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
@@ -29,14 +31,14 @@ func init() {
 // Option configures a framework registry
 type Option func(frameworkruntime.Registry) error
 
-func NewXschedulerCmd() *cobra.Command {
+func NewXschedulerCmd(registryOptions ...Option) *cobra.Command {
 	opts := options.NewOptions()
 
 	cmd := &cobra.Command{
 		Use:   "xscheduler",
 		Short: "xscheduler is a scheduler for cloud native scheduler",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runCommand(cmd, opts)
+			return runCommand(cmd, opts, registryOptions...)
 		},
 		Args: func(cmd *cobra.Command, args []string) error {
 			for _, arg := range args {
@@ -68,7 +70,7 @@ func NewXschedulerCmd() *cobra.Command {
 	return cmd
 }
 
-func runCommand(cmd *cobra.Command, opts *options.Options) error {
+func runCommand(cmd *cobra.Command, opts *options.Options, registryOptions ...Option) error {
 	if err := logsapi.ValidateAndApply(opts.Logs, utilfeature.DefaultFeatureGate); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
@@ -88,12 +90,28 @@ func runCommand(cmd *cobra.Command, opts *options.Options) error {
 
 // Setup creates a completed config and a scheduler based on the command args and options
 func Setup(ctx context.Context, opts *options.Options, outOfTreeRegistryOptions ...Option) (
-	*xschedulerserverconfig.CompletedConfig, error) {
+	*xschedulerappconfig.CompletedConfig, *xscheduler.Xscheduler, error) {
 	if errs := opts.Validate(); len(errs) > 0 {
-		return nil, nil
+		return nil, nil, utilerrors.NewAggregate(errs)
 	}
 
-	_, _ = opts.Config(ctx)
+	c, err := opts.Config(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	return nil, nil
+	// Get the completed config
+	_ = c.Complete()
+
+	// todo: make transformers for informers and indexers
+
+	// make out of tree registry
+	outOfTreeRegistry := make(frameworkruntime.Registry)
+	for _, option := range outOfTreeRegistryOptions {
+		if err := option(outOfTreeRegistry); err != nil {
+			return nil, nil, err
+		}
+	}
+
+	return nil, nil, nil
 }

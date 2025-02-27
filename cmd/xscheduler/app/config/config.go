@@ -50,11 +50,18 @@ type completedConfig struct {
 	*Config
 }
 
+// CompletedConfig same as Config, just to swap private object.
 type CompletedConfig struct {
 	*completedConfig
 }
 
 func (c *Config) Complete() CompletedConfig {
 	cc := completedConfig{c}
+
+	// AuthorizeClientBearerToken wraps the authenticator and authorizer in loopback authentication logic
+	// if the loopback client config is specified AND it has a bearer token. Note that if either authn or
+	// authz is nil, this function won't add a token authenticator or authorizer.
+	apiserver.AuthorizeClientBearerToken(c.LoopbackClientConfig, &c.Authentication, &c.Authorization)
+
 	return CompletedConfig{&cc}
 }
