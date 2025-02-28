@@ -1,4 +1,4 @@
 // +k8s:deepcopy-gen=package
-// +groupName = xscheduler
+// +groupName=xscheduler
 
 package config

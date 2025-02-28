@@ -1,8 +1,13 @@
 package migration
 
 import (
+	"github.com/fleezesd/xscheduler/pkg/xscheduler/controllers/names"
 	"github.com/fleezesd/xscheduler/pkg/xscheduler/framework"
 	"k8s.io/apimachinery/pkg/runtime"
+)
+
+const (
+	Name = names.MigrationController
 )
 
 // todo: make migration controller

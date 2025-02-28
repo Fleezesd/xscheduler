@@ -9,7 +9,18 @@ $(LOCALBIN):
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 
 ## Tool Versions
-CONTROLLER_TOOLS_VERSION ?= v0.14.0
+CONTROLLER_TOOLS_VERSION ?= v0.17.0
+
+# Set license header files.
+LICENSE_HEADER_GO ?= hack/boilerplate.go.txt
+
+
+##@ Development
+
+.PHONY: manifests
+manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
+	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+
 
 .PHONY: controller-gen
 controller-gen: $(CONTROLLER_GEN) ## Download controller-gen locally if necessary.

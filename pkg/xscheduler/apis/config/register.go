@@ -12,7 +12,9 @@ var (
 )
 
 // GroupName is the group name use in this package
-const GroupName = "Xescheduler"
+const (
+	GroupName = "xscheduler.fleezesd.io"
+)
 
 // SchemeGroupVersion is group version used to register these objects
 var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: runtime.APIVersionInternal}
@@ -30,6 +32,7 @@ func Resource(resource string) schema.GroupResource {
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&XschedulerConfiguration{},
+		&MigrationControllerArgs{},
 	)
 	return nil
 }

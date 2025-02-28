@@ -8,6 +8,7 @@ import (
 	xschedulerappconfig "github.com/fleezesd/xscheduler/cmd/xscheduler/app/config"
 	"github.com/fleezesd/xscheduler/cmd/xscheduler/app/options"
 	"github.com/fleezesd/xscheduler/pkg/xscheduler"
+	xschedulercontrollers "github.com/fleezesd/xscheduler/pkg/xscheduler/controllers"
 	frameworkruntime "github.com/fleezesd/xscheduler/pkg/xscheduler/framework/runtime"
 	"github.com/spf13/cobra"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -111,6 +112,9 @@ func Setup(ctx context.Context, opts *options.Options, outOfTreeRegistryOptions 
 		if err := option(outOfTreeRegistry); err != nil {
 			return nil, nil, err
 		}
+	}
+	if err := outOfTreeRegistry.Merge(xschedulercontrollers.NewControllerRegistry()); err != nil {
+		return nil, nil, err
 	}
 
 	return nil, nil, nil

@@ -27,7 +27,7 @@ THIS_PKG="github.com/fleezesd/xscheduler"
 
 kube::codegen::gen_helpers \
     --boilerplate "${SCRIPT_ROOT}/hack/boilerplate.go.txt" \
-    "${SCRIPT_ROOT}/pkg/xschduler/apis"
+    "${SCRIPT_ROOT}/pkg/xscheduler/apis"
 
 kube::codegen::gen_client \
     --with-watch \

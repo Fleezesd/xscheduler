@@ -12,7 +12,7 @@ var (
 )
 
 // GroupName is the group name used in this package
-const GroupName = "xscheduler"
+const GroupName = "xscheduler.fleezesd.io"
 const GroupVersion = "v1alpha1"
 
 // SchemeGroupVersion is group version used to register these objects
