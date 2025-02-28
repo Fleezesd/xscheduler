@@ -9,6 +9,7 @@ import (
 	clientset "k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/events"
+	"k8s.io/utils/ptr"
 )
 
 type Handle interface {
@@ -30,6 +31,11 @@ type Handle interface {
 
 	SharedInformerFactory() informers.SharedInformerFactory
 }
+
+var (
+	EvictionPluginNameContextKey = ptr.To("pluginName")
+	EvictionReasonContextKey     = ptr.To("evictionReason")
+)
 
 type Evictor interface {
 	// Filter checks if a pod can be evicted
@@ -57,3 +63,20 @@ type GetPodsAssignedToNodeFunc func(string, FilterFunc) ([]*corev1.Pod, error)
 
 // FilterFunc is a filter for a pod.
 type FilterFunc func(*corev1.Pod) bool
+
+func FillEvictOptionsFromContext(ctx context.Context, opts *EvictOptions) {
+	if opts.PluginName == "" {
+		if val := ctx.Value(EvictionPluginNameContextKey); val != nil {
+			opts.PluginName = val.(string)
+		}
+	}
+	if opts.Reason == "" {
+		if val := ctx.Value(EvictionReasonContextKey); val != nil {
+			opts.Reason = val.(string)
+		}
+	}
+}
+
+func PluginNameWithContext(ctx context.Context, pluginName string) context.Context {
+	return context.WithValue(ctx, EvictionPluginNameContextKey, pluginName)
+}

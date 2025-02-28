@@ -6,13 +6,27 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+type PluginsRunner interface {
+	RunXschedulerPlugin(ctx context.Context, node []*corev1.Node) *Status
+	RunBalancePlugins(ctx context.Context, node []*corev1.Node) *Status
+}
+
+type Status struct {
+	Err error
+}
+
 type Plugin interface {
 	Name() string
 }
 
-type PluginsRunner interface {
-	RunXschedulerPlugin(ctx context.Context, node []*corev1.Node) *Status
-	RunBalancePlugins(ctx context.Context, node []*corev1.Node) *Status
+type XschedulePlugin interface {
+	Plugin
+	Xscheduler(ctx context.Context, nodes []*corev1.Node) *Status
+}
+
+type BalancePlugin interface {
+	Plugin
+	Balance(ctx context.Context, nodes []*corev1.Node) *Status
 }
 
 type FilterPlugin interface {
