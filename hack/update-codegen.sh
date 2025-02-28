@@ -31,7 +31,7 @@ kube::codegen::gen_helpers \
 
 kube::codegen::gen_client \
     --with-watch \
-    --output-dir "${SCRIPT_ROOT}/pkg/xscheulder/generated" \
+    --output-dir "${SCRIPT_ROOT}/pkg/xscheduler/generated" \
     --output-pkg "${THIS_PKG}/pkg/xscheduler/generated" \
     --boilerplate "${SCRIPT_ROOT}/hack/boilerplate.go.txt" \
-    "${SCRIPT_ROOT}/pkg/xscheduler/apis"
+    "${SCRIPT_ROOT}/apis"
