@@ -31,6 +31,10 @@ func (c *FakeSchedulingV1alpha1) PodMigrationJobs() v1alpha1.PodMigrationJobInte
 	return newFakePodMigrationJobs(c)
 }
 
+func (c *FakeSchedulingV1alpha1) Reservations() v1alpha1.ReservationInterface {
+	return newFakeReservations(c)
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeSchedulingV1alpha1) RESTClient() rest.Interface {

@@ -25,6 +25,8 @@ import (
 type Interface interface {
 	// PodMigrationJobs returns a PodMigrationJobInformer.
 	PodMigrationJobs() PodMigrationJobInformer
+	// Reservations returns a ReservationInformer.
+	Reservations() ReservationInformer
 }
 
 type version struct {
@@ -41,4 +43,9 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // PodMigrationJobs returns a PodMigrationJobInformer.
 func (v *version) PodMigrationJobs() PodMigrationJobInformer {
 	return &podMigrationJobInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+}
+
+// Reservations returns a ReservationInformer.
+func (v *version) Reservations() ReservationInformer {
+	return &reservationInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
 }

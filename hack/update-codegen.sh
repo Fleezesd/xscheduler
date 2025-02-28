@@ -35,3 +35,12 @@ kube::codegen::gen_client \
     --output-pkg "${THIS_PKG}/pkg/xscheduler/generated" \
     --boilerplate "${SCRIPT_ROOT}/hack/boilerplate.go.txt" \
     "${SCRIPT_ROOT}/apis"
+
+# todo: check openapi generation
+# kube::codegen::gen_openapi \
+#     --output-dir "${SCRIPT_ROOT}/apis/openapi" \
+#     --output-pkg "${THIS_PKG}/apis/openapi" \
+#     --report-filename "${report_filename:-"/dev/null"}" \
+#     ${update_report:+"${update_report}"} \
+#     --boilerplate "${SCRIPT_ROOT}/hack/boilerplate.go.txt" \
+#     "${SCRIPT_ROOT}/apis"
