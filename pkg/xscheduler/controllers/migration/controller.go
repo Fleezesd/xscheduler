@@ -12,6 +12,7 @@ import (
 
 	xschedulerconfig "github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config"
 	"github.com/fleezesd/xscheduler/pkg/xscheduler/apis/config/validation"
+	"github.com/fleezesd/xscheduler/pkg/xscheduler/controllers/migration/reservation"
 	"github.com/fleezesd/xscheduler/pkg/xscheduler/controllers/names"
 	"github.com/fleezesd/xscheduler/pkg/xscheduler/controllers/options"
 	"github.com/fleezesd/xscheduler/pkg/xscheduler/framework"
@@ -30,7 +31,7 @@ type Reconciler struct {
 	eventRecorder events.EventRecorder
 
 	// todo: interpreter & finder
-
+	reservationInterpreter reservation.Interpreter
 	// todo: assumedcache
 
 	// todo: arbitrator
@@ -66,11 +67,14 @@ func newReconciler(args *xschedulerconfig.MigrationControllerArgs, handle framew
 	manager := options.Manager
 
 	// todo: interpreter & finder
+	reservationInterpreter := reservation.NewInterpreter(manager)
+
 	r := &Reconciler{
-		Client:        manager.GetClient(),
-		args:          args,
-		eventRecorder: handle.EventRecorder(),
-		clock:         clock.RealClock{},
+		Client:                 manager.GetClient(),
+		args:                   args,
+		eventRecorder:          handle.EventRecorder(),
+		clock:                  clock.RealClock{},
+		reservationInterpreter: reservationInterpreter,
 	}
 	r.initObjectLimiters()
 	if err := manager.Add(r); err != nil {

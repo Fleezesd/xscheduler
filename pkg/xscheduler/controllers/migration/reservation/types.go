@@ -22,7 +22,7 @@ var NewInterpreter = newInterpreter
 type Interpreter interface {
 	GetReservationType() client.Object
 
-	Preemption()
+	Preemption() Preemption
 
 	CreateReservation(ctx context.Context, job *schedulingv1alpha1.PodMigrationJob) (Object, error)
 
